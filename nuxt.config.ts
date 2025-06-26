@@ -3,6 +3,17 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
 
+  devServer: {
+    port: 3041,
+  },
+
+  runtimeConfig: {
+    env: {
+      binanceKey: process.env.NUXT_ENV_BINANCE_KEY || '',
+      binanceSecret: process.env.NUXT_ENV_BINANCE_SECRET || '',
+    }
+  },
+
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',
@@ -10,5 +21,11 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/ui'
-  ]
+  ],
+
+  nitro: {
+    experimental: {
+      websocket: true
+    }
+  },
 })
