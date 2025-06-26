@@ -3,6 +3,10 @@ import Binance from 'node-binance-api'
 import { useRuntimeConfig } from '#imports'
 import type { SelectPair } from '~/types/types'
 
+// FIXME: use cache
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let globalInfo: any = null
+
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const searchQuery = (query.query as string || '').toUpperCase()
@@ -24,10 +28,11 @@ export default defineEventHandler(async (event) => {
       APISECRET: binanceSecret,
     })
 
-    // TODO: cache this is expensive
-    const info = await binance.exchangeInfo()
+    if (!globalInfo) {
+      globalInfo = await binance.exchangeInfo()
+    }
 
-    const pairs = info.symbols
+    const pairs = globalInfo.symbols
       .filter((symbol: { status: string }) => symbol.status === 'TRADING')
       .map((s: { baseAsset: string, quoteAsset: string, symbol: string }) => {
         const pair: SelectPair = {

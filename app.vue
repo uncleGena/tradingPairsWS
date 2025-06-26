@@ -25,6 +25,15 @@
           </UButton>
         </div>
 
+        <div class="flex flex-wrap gap-4">
+          <CardPair
+            v-for="key in Object.keys(activeSubscriptions)"
+            :key="key"
+            :selected-item="dataPairs.find(p => p.value === key)!"
+            :active-subscription="activeSubscriptions[key] ?? null"
+          />
+        </div>
+
         <pre>activeSubscriptions: {{ activeSubscriptions }}</pre>
       </main>
     </div>
@@ -60,14 +69,6 @@ watch(selectedPair, (val, oldVal) => {
   unsubscribe(oldSymbols)
   subscribe(newSymbols)
 })
-
-// onMounted(() => {
-//   subscribe([currentSymbol.value])
-// })
-
-// onUnmounted(() => {
-//   unsubscribe([currentSymbol.value])
-// })
 
 // NOTE: this is for UI rendering optimization, Because we do not want to render all
 // 3000+ pairs on the page.
