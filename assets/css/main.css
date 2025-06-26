@@ -1,2 +1,10 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+
+pre {
+  color: tomato;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}

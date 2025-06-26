@@ -24,13 +24,14 @@
             Clear
           </UButton>
         </div>
+
+        <pre>activeSubscriptions: {{ activeSubscriptions }}</pre>
       </main>
     </div>
   </UApp>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
 import type { SelectPair } from '~/types/types'
 import { useSocket } from '~/composables/useSocket'
 import debounce from 'lodash/debounce'
@@ -38,11 +39,12 @@ import debounce from 'lodash/debounce'
 const {
   // status,
   // candlesticks,
+  activeSubscriptions,
   subscribe,
   unsubscribe,
 } = useSocket()
 
-const currentSymbol = ref('BTCUSDT')
+// const currentSymbol = ref('BTCUSDT')
 
 const selectedPair = ref<SelectPair[]>([])
 
@@ -51,14 +53,24 @@ const error = ref<Error | null>(null)
 
 const dataPairs = ref<SelectPair[]>([])
 
-onMounted(() => {
-  subscribe([currentSymbol.value])
+watch(selectedPair, (val, oldVal) => {
+  const oldSymbols = oldVal.map(p => p.value)
+  const newSymbols = val.map(p => p.value)
+
+  unsubscribe(oldSymbols)
+  subscribe(newSymbols)
 })
 
-onUnmounted(() => {
-  unsubscribe([currentSymbol.value])
-})
+// onMounted(() => {
+//   subscribe([currentSymbol.value])
+// })
 
+// onUnmounted(() => {
+//   unsubscribe([currentSymbol.value])
+// })
+
+// NOTE: this is for UI rendering optimization, Because we do not want to render all
+// 3000+ pairs on the page.
 const debouncedSearch = debounce(searchPairs, 500)
 
 async function searchPairs(query: string) {

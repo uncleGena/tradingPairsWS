@@ -1,11 +1,28 @@
 import { ref, readonly, onScopeDispose } from 'vue'
 
-// State should be outside the composable function to act as a singleton
+interface CandlestickData {
+  t: number // Kline start time
+  T: number // Kline close time
+  s: string // Symbol
+  i: string // Interval
+  f: number // First trade ID
+  L: number // Last trade ID
+  o: string // Open price
+  c: string // Close price
+  h: string // High price
+  l: string // Low price
+  v: string // Base asset volume
+  n: number // Number of trades
+  x: boolean // Is this kline closed?
+  q: string // Quote asset volume
+  V: string // Taker buy base asset volume
+  Q: string // Taker buy quote asset volume
+  B: string // Ignore
+}
+
 const socket = ref<WebSocket | null>(null)
 const status = ref('Disconnected')
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const candlesticks = ref<any[]>([])
-const activeSubscriptions = new Set<string>()
+const activeSubscriptions = ref<Record<string, CandlestickData | null>>({})
 
 const connect = () => {
   if (import.meta.server) return
@@ -26,7 +43,7 @@ const connect = () => {
     status.value = 'Connected'
     console.log('[ws] Connected')
     // Resubscribe if there were any active subscriptions before a disconnect
-    if (activeSubscriptions.size > 0) {
+    if (Object.keys(activeSubscriptions.value).length > 0) {
       sendSubscriptions()
     }
   }
@@ -34,14 +51,9 @@ const connect = () => {
   socket.value.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data)
-      const index = candlesticks.value.findIndex(c => c.k.t === data.k.t)
-      if (index !== -1) {
-        candlesticks.value[index] = data
-      }
-      else {
-        candlesticks.value.unshift(data)
-        if (candlesticks.value.length > 20)
-          candlesticks.value.pop()
+      // Update the data for the corresponding symbol
+      if (data && data.s && activeSubscriptions.value[data.s] !== undefined) {
+        activeSubscriptions.value[data.s] = data.k
       }
     }
     catch (err) {
@@ -63,9 +75,10 @@ const connect = () => {
 
 const sendSubscriptions = () => {
   if (socket.value?.readyState === WebSocket.OPEN) {
+    const symbolsToSubscribe = Object.keys(activeSubscriptions.value)
     const message = JSON.stringify({
       action: 'subscribe',
-      symbols: Array.from(activeSubscriptions),
+      symbols: symbolsToSubscribe,
     })
     socket.value.send(message)
     console.log('[ws] Subscription message sent:', message)
@@ -78,26 +91,32 @@ export function useSocket() {
     connect()
 
   const subscribe = (symbols: string[]) => {
-    symbols.forEach(s => activeSubscriptions.add(s))
+    symbols.forEach((s) => {
+      activeSubscriptions.value[s] = null // Set to null on initial subscription
+    })
     sendSubscriptions()
   }
 
   const unsubscribe = (symbols: string[]) => {
-    symbols.forEach(s => activeSubscriptions.delete(s))
+    const symbolsToUnsubscribe = new Set(symbols)
+    activeSubscriptions.value = Object.fromEntries(
+      Object.entries(activeSubscriptions.value).filter(
+        ([symbol]) => !symbolsToUnsubscribe.has(symbol),
+      ),
+    )
     sendSubscriptions()
   }
 
   onScopeDispose(() => {
-    // This is a simple app, so we don't close the connection
-    // when a single component unmounts. But in a larger app,
-    // you might add reference counting here to close the socket
-    // when no components are using it.
-    console.log('[useSocket] Component unmounted, but socket remains open.')
+    // In a simple app, we want the connection to persist.
+    // In a larger app, we might implement reference counting
+    // to close the socket when no components are using it.
+    console.log('[useSocket] Component unmounted, socket remains open.')
   })
 
   return {
     status: readonly(status),
-    candlesticks: readonly(candlesticks),
+    activeSubscriptions: readonly(activeSubscriptions),
     subscribe,
     unsubscribe,
     close: () => socket.value?.close(),
