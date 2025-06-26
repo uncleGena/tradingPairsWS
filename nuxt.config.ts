@@ -28,4 +28,8 @@ export default defineNuxtConfig({
       websocket: true
     }
   },
+
+  css: ['~/assets/css/main.css'],
+
+  
 })

@@ -97,13 +97,13 @@ function updateBinanceStream() {
 export default defineWebSocketHandler({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   open(peer: any) {
-    console.log('[ws] client connected:', peer)
+    // console.log('[ws] client connected:', peer)
     clientSubscriptions.set(peer, new Set())
   },
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   close(peer: any) {
-    console.log('[ws] client disconnected:', peer)
+    // console.log('[ws] client disconnected:', peer)
     clientSubscriptions.delete(peer)
     updateBinanceStream()
   },

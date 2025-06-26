@@ -8,6 +8,8 @@ const candlesticks = ref<any[]>([])
 const activeSubscriptions = new Set<string>()
 
 const connect = () => {
+  if (import.meta.server) return
+
   // Don't reconnect if already open or connecting
   if (socket.value && socket.value.readyState < 2) {
     return
