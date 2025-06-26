@@ -10,11 +10,19 @@
             :items="dataPairs"
             searchable
             placeholder="Search for a pair..."
-            :avatar="selectedPair?.avatar"
             :loading="pending"
+            multiple
             class="w-full md:w-1/2" 
             @update:search-term="debouncedSearch"
           />
+          <UButton
+            v-if="selectedPair.length > 0"
+            class="ml-2"
+            variant="outline"
+            @click="onClickClear"
+          >
+            Clear
+          </UButton>
         </div>
       </main>
     </div>
@@ -36,7 +44,7 @@ const {
 
 const currentSymbol = ref('BTCUSDT')
 
-const selectedPair = ref<SelectPair | undefined>(undefined)
+const selectedPair = ref<SelectPair[]>([])
 
 const pending = ref(false)
 const error = ref<Error | null>(null)
@@ -70,6 +78,10 @@ async function searchPairs(query: string) {
 
   dataPairs.value = pairs
   return pairs
+}
+
+function onClickClear() {
+  selectedPair.value = []
 }
 </script>
 
