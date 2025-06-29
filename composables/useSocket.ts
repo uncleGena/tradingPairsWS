@@ -2,6 +2,21 @@ import { ref, readonly, onScopeDispose } from 'vue'
 import type { CandlestickData } from '~/types/types'
 
 
+// This is the object structure returned by the /api/klines endpoint
+// based on the node-binance-api .candles() method.
+interface KlineRestObject {
+  openTime: number
+  open: string
+  high: string
+  low: string
+  close: string
+  volume: string
+  closeTime: number
+  quoteAssetVolume: string
+  trades: number
+  baseAssetVolume: string
+  quoteVolume: string // Note: may be the same as quoteAssetVolume, included for completeness
+}
 
 const socket = ref<WebSocket | null>(null)
 const status = ref('Disconnected')
@@ -74,9 +89,57 @@ export function useSocket() {
     connect()
 
   const subscribe = (symbols: string[]) => {
+    const newSymbols: string[] = []
     symbols.forEach((s) => {
-      activeSubscriptions.value[s] = null // Set to null on initial subscription
+      // Only process symbols that are not already subscribed
+      if (activeSubscriptions.value[s] === undefined) {
+        newSymbols.push(s)
+        activeSubscriptions.value[s] = null // Set to null to indicate loading
+      }
     })
+
+    if (newSymbols.length === 0)
+      return
+
+    // Fetch initial data for newly subscribed symbols
+    newSymbols.forEach(async (symbol) => {
+      try {
+        const klineData = await $fetch<KlineRestObject>(`/api/klines?symbol=${symbol}`)
+
+        // Check if we are still subscribed to this symbol before updating state
+        if (klineData && activeSubscriptions.value[symbol] === null) {
+          // Map the object from the REST API to the CandlestickData object format
+          const mappedData: CandlestickData = {
+            t: klineData.openTime,
+            o: klineData.open,
+            h: klineData.high,
+            l: klineData.low,
+            c: klineData.close,
+            v: klineData.volume,
+            T: klineData.closeTime,
+            q: klineData.quoteAssetVolume,
+            n: klineData.trades,
+            V: klineData.baseAssetVolume,
+            Q: klineData.quoteVolume,
+            // --- Properties from websocket that are not in the base kline response ---
+            s: symbol,
+            i: '1m', // Assuming 1m interval as per our server implementation
+            x: true, // It's a historical, closed kline
+            f: 0, // First trade ID (not available from this endpoint)
+            L: 0, // Last trade ID (not available from this endpoint)
+            B: '', // Ignore (not available from this endpoint)
+          }
+          activeSubscriptions.value[symbol] = mappedData
+        }
+      }
+      catch (e) {
+        console.error(`Failed to fetch initial kline for ${symbol}`, e)
+        // If it fails, we can either remove it or leave it as null.
+        // Leaving it as null allows the UI to show a loading/error state
+        // until the first websocket message arrives.
+      }
+    })
+
     sendSubscriptions()
   }
 
