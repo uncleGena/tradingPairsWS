@@ -1,9 +1,13 @@
 <template>
   <UApp>
-    <div class="p-4">
+    <div class="">
 
       <main>
-        <div class="mb-4">
+        <div class="mb-4 flex justify-between items-center h-16">
+          <TheHeader class="" />
+        </div>
+
+        <div class="mb-4 px-4">
           <label for="pair-select" class="block text-sm font-medium text-gray-700 mb-1">Select a Trading Pair</label>
           <USelectMenu
             v-model="selectedPair" 
@@ -25,7 +29,7 @@
           </UButton>
         </div>
 
-        <div class="flex flex-wrap gap-4">
+        <div class="flex flex-wrap gap-4 px-4">
           <CardPair
             v-for="pair in activePairs"
             :key="pair.value"
@@ -34,7 +38,7 @@
           />
         </div>
 
-        <pre>activeSubscriptions: {{ activeSubscriptions }}</pre>
+        <!-- <pre class="px-4">activeSubscriptions: {{ activeSubscriptions }}</pre> -->
       </main>
     </div>
   </UApp>
