@@ -27,10 +27,10 @@
 
         <div class="flex flex-wrap gap-4">
           <CardPair
-            v-for="key in Object.keys(activeSubscriptions)"
-            :key="key"
-            :selected-item="dataPairs.find(p => p.value === key)!"
-            :active-subscription="activeSubscriptions[key] ?? null"
+            v-for="pair in activePairs"
+            :key="pair.value"
+            :selected-item="dataPairs.find(p => p.value === pair.value)!"
+            :active-subscription="activeSubscriptions[pair.value] ?? null"
           />
         </div>
 
@@ -44,6 +44,7 @@
 import type { SelectPair } from '~/types/types'
 import { useSocket } from '~/composables/useSocket'
 import debounce from 'lodash/debounce'
+import { LOCAL_STORAGE_SELECTED_PAIRS } from '~/utils/constants'
 
 const {
   // status,
@@ -55,7 +56,7 @@ const {
 
 // const currentSymbol = ref('BTCUSDT')
 
-const selectedPair = ref<SelectPair[]>([])
+const selectedPair = useLocalStorage<SelectPair[]>(LOCAL_STORAGE_SELECTED_PAIRS, [], { initOnMounted: true })
 
 const pending = ref(false)
 const error = ref<Error | null>(null)
@@ -73,12 +74,20 @@ const dataPairsInitial = ref<string[]>([
   'XRPBTC',
 ])
 
+const activePairs = computed<SelectPair[]>(() => {
+  return Object.keys(activeSubscriptions.value)
+    .map(key => dataPairs.value.find(p => p.value === key))
+    .filter(p => p !== undefined)
+})
+
 watch(selectedPair, (val, oldVal) => {
-  const oldSymbols = oldVal.map(p => p.value)
+  const oldSymbols = oldVal?.map(p => p.value) ?? []
   const newSymbols = val.map(p => p.value)
 
   unsubscribe(oldSymbols)
   subscribe(newSymbols)
+}, {
+  immediate: true,
 })
 
 onMounted(() => {
@@ -104,6 +113,7 @@ async function searchPairs(query: string) {
     pending.value = false
   })
 
+  // debugger
   dataPairs.value = pairs
   return pairs
 }

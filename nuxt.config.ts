@@ -15,6 +15,7 @@ export default defineNuxtConfig({
   },
 
   modules: [
+    '@vueuse/nuxt',
     '@nuxt/eslint',
     '@nuxt/fonts',
     '@nuxt/icon',
