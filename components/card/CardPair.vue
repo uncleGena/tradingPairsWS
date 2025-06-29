@@ -53,7 +53,7 @@
         </div>
       </li>
       <li v-else>
-        <div class="text-center text-gray-500 py-4">
+        <div class="text-center text-gray-500 py-6 min-h-[152px]">
           Loading candlestick data...
         </div>
       </li>

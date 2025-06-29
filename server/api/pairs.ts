@@ -37,11 +37,22 @@ export default defineEventHandler(async (event) => {
     const pairs = globalInfo.symbols
       .filter((symbol: { status: string }) => symbol.status === 'TRADING')
       .map((s: { baseAsset: string, quoteAsset: string, symbol: string }) => {
+
+        const svgBase64 = (() => {
+          const v = getIcon(s.baseAsset)
+          if (!v) return null
+          const svgString = v.toString()
+          const buffer = Buffer.from(svgString, 'utf8');
+          const base64String = buffer.toString('base64')
+
+          return `data:image/svg+xml;base64,${base64String}`
+        })()
+
         const pair: SelectPair = {
           label: `${s.baseAsset}/${s.quoteAsset}`,
           value: s.symbol,
           avatar: {
-            src: `https://dummyimage.com/32x32/000/fff.png&text=${s.baseAsset}/${s.quoteAsset}`,
+            src: svgBase64 || `https://dummyimage.com/32x32/000/fff.png&text=${s.baseAsset}`,
             alt: `${s.baseAsset}/${s.quoteAsset}`
           },
           baseIcon: {
