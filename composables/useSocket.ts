@@ -144,13 +144,23 @@ export function useSocket() {
   }
 
   const unsubscribe = (symbols: string[]) => {
+    // 1. Remove from the local state immediately for UI responsiveness
     const symbolsToUnsubscribe = new Set(symbols)
     activeSubscriptions.value = Object.fromEntries(
       Object.entries(activeSubscriptions.value).filter(
         ([symbol]) => !symbolsToUnsubscribe.has(symbol),
       ),
     )
-    sendSubscriptions()
+
+    // 2. Send an explicit unsubscribe message to the backend
+    if (socket.value?.readyState === WebSocket.OPEN && symbols.length > 0) {
+      const message = JSON.stringify({
+        action: 'unsubscribe',
+        symbols,
+      })
+      socket.value.send(message)
+      console.log('[ws] Unsubscribe message sent:', message)
+    }
   }
 
   onScopeDispose(() => {

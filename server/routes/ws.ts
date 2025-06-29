@@ -38,10 +38,6 @@ if (binanceKey && binanceSecret) {
     APIKEY: binanceKey,
     APISECRET: binanceSecret,
     useServerTime: true,
-    verbose: true,
-    log: (log: unknown) => {
-      console.log('[binance-api]', log)
-    },
   })
 }
 else {
@@ -87,8 +83,11 @@ function updateBinanceStream() {
       const message = JSON.stringify(candlestick)
       const symbol = candlestick.s
       for (const [client, subscriptions] of clientSubscriptions.entries()) {
-        if (subscriptions.has(symbol))
+        if (subscriptions.has(symbol)) {
           client.send(message)
+          console.log('[binance] Sent message to client')
+        }
+
       }
     }
   })
@@ -120,11 +119,25 @@ export default defineWebSocketHandler({
     try {
       const { action, symbols } = JSON.parse(message.text())
 
-      if (action === 'subscribe' && Array.isArray(symbols)) {
-        console.log(`[ws] client ${peer} subscribing to`, symbols)
-        clientSubscriptions.set(peer, new Set(symbols))
-        updateBinanceStream()
+      if (!Array.isArray(symbols)) {
+        console.warn('[ws] Received message without a "symbols" array', message.text())
+        return
       }
+
+      const currentSubscriptions = clientSubscriptions.get(peer)
+      if (!currentSubscriptions)
+        return
+
+      if (action === 'subscribe') {
+        console.log(`[ws] client ${peer} subscribing to`, symbols)
+        symbols.forEach(s => currentSubscriptions.add(s.toUpperCase()))
+      }
+      else if (action === 'unsubscribe') {
+        console.log(`[ws] client ${peer} unsubscribing from`, symbols)
+        symbols.forEach(s => currentSubscriptions.delete(s.toUpperCase()))
+      }
+
+      updateBinanceStream()
     }
     catch (err) {
       console.error('Failed to parse message from client:', message.text(), err)
