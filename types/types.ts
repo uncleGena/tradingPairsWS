@@ -1,10 +1,22 @@
 export type SelectPair = {
   label: string
   value: string
+
+  /* @deprecated use baseIcon and quoteIcon instead */
   avatar: {
     src: string
     alt: string
-  }
+  },
+  baseIcon: {
+    svg: string | null
+    src: string
+    alt: string
+  },
+  quoteIcon: {
+    svg: string | null
+    src: string
+    alt: string
+  },
 }
 
 export type CandlestickData = {

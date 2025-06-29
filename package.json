@@ -17,6 +17,7 @@
     "@nuxt/scripts": "0.11.8",
     "@nuxt/ui": "3.2.0",
     "@unhead/vue": "^2.0.11",
+    "binance-icons": "^0.5.1",
     "eslint": "^9.29.0",
     "lodash": "^4.17.21",
     "node-binance-api": "^1.0.10",

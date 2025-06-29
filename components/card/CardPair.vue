@@ -5,28 +5,26 @@
   >
     <template #header>
       <span class="flex items-center">
-        <img 
-          :src="selectedItem.avatar.src" 
-          :alt="selectedItem.avatar.alt"
-          width="40"
-          height="40"
-          class="w-[40px] h-[40px] rounded-xs inline-block mr-2"
-        >
+        <IconTwoTokens
+          :base-icon="selectedItem.baseIcon"
+          :quote-icon="selectedItem.quoteIcon"
+          class="mr-2"
+        />
         <h5>{{ selectedItem.label }}</h5>
       </span>
     </template>
 
-    <ul>
+    <ul class="block min-w-[250px]">
       <li v-if="activeSubscription">
         <div class="grid grid-cols-2 gap-4 text-sm">
-          <div>
+          <div class="flex flex-col">
             <span class="text-gray-500">Open:</span>
-            <span class="ml-2 font-medium">{{ parseFloat(activeSubscription.o).toFixed(4) }}</span>
+            <span class="font-medium">{{ parseFloat(activeSubscription.o).toFixed(4) }}</span>
           </div>
-          <div>
+          <div class="flex flex-col">
             <span class="text-gray-500">Close:</span>
             <span 
-              class="ml-2 font-medium" 
+              class="font-medium" 
               :class="{ 
                 'text-green-500': upOrDown === 'up', 
                 'text-red-500': upOrDown === 'down',
@@ -36,21 +34,21 @@
               {{ parseFloat(activeSubscription.c).toFixed(4) }}
             </span>
           </div>
-          <div>
+          <div class="flex flex-col">
             <span class="text-gray-500">High:</span>
-            <span class="ml-2 font-medium">{{ parseFloat(activeSubscription.h).toFixed(4) }}</span>
+            <span class="font-medium">{{ parseFloat(activeSubscription.h).toFixed(4) }}</span>
           </div>
-          <div>
+          <div class="flex flex-col">
             <span class="text-gray-500">Low:</span>
-            <span class="ml-2 font-medium">{{ parseFloat(activeSubscription.l).toFixed(4) }}</span>
+            <span class="font-medium">{{ parseFloat(activeSubscription.l).toFixed(4) }}</span>
           </div>
-          <div>
+          <div class="flex flex-col">
             <span class="text-gray-500">Volume:</span>
-            <span class="ml-2 font-medium">{{ parseFloat(activeSubscription.v).toFixed(2) }}</span>
+            <span class="font-medium">{{ parseFloat(activeSubscription.v).toFixed(2) }}</span>
           </div>
-          <div>
+          <div class="flex flex-col">
             <span class="text-gray-500">Trades:</span>
-            <span class="ml-2 font-medium">{{ activeSubscription.n }}</span>
+            <span class=" font-medium">{{ activeSubscription.n }}</span>
           </div>
         </div>
       </li>
@@ -65,6 +63,7 @@
 
 <script setup lang="ts">
 import type { SelectPair, CandlestickData } from '~/types/types';
+import IconTwoTokens from '../icon/IconTwoTokens.vue';
 
 const props = withDefaults(defineProps<{
   selectedItem: SelectPair

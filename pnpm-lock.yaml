@@ -29,6 +29,9 @@ importers:
       '@unhead/vue':
         specifier: ^2.0.11
         version: 2.0.11(vue@3.5.17(typescript@5.8.3))
+      binance-icons:
+        specifier: ^0.5.1
+        version: 0.5.1
       eslint:
         specifier: ^9.29.0
         version: 9.29.0(jiti@2.4.2)
@@ -1845,6 +1848,9 @@ packages:
 
   bignumber.js@9.3.0:
     resolution: {integrity: sha512-EM7aMFTXbptt/wZdMlBv2t8IViwQL+h6SLHosp8Yf0dqJMTnY6iL32opnAB6kAdL0SZPuvcAzFr31o0c/R3/RA==}
+
+  binance-icons@0.5.1:
+    resolution: {integrity: sha512-S9KsVZ4E02qtxEECgGNednR8Ll5j3IiK/tOkXbmmNf/mSpdhRuVMwSzBRTakA25KdQLJ7RmZFkrQuSZGtcfmVg==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -7890,6 +7896,8 @@ snapshots:
       safe-buffer: 5.1.2
 
   bignumber.js@9.3.0: {}
+
+  binance-icons@0.5.1: {}
 
   binary-extensions@2.3.0: {}
 

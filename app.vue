@@ -61,6 +61,17 @@ const pending = ref(false)
 const error = ref<Error | null>(null)
 
 const dataPairs = ref<SelectPair[]>([])
+const dataPairsInitial = ref<string[]>([
+  'BTCUSDT', 
+  'ETHUSDT', 
+  'BNBBTC', 
+  'SOLUSDT', 
+  'ETHBTC',
+  'XRPUSDT',
+  'XRPBTC',
+  'XRPETH',
+  'XRPBTC',
+])
 
 watch(selectedPair, (val, oldVal) => {
   const oldSymbols = oldVal.map(p => p.value)
@@ -68,6 +79,10 @@ watch(selectedPair, (val, oldVal) => {
 
   unsubscribe(oldSymbols)
   subscribe(newSymbols)
+})
+
+onMounted(() => {
+  searchPairs(dataPairsInitial.value.join(','))
 })
 
 // NOTE: this is for UI rendering optimization, Because we do not want to render all
